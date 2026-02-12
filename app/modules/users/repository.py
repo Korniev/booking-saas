@@ -15,6 +15,10 @@ class UserRepository:
         result = await session.execute(select(User).where(User.email == email))
         return result.scalar_one_or_none()
 
+    async def list_users(self, session: AsyncSession, *, skip: int = 0, limit: int = 100) -> list[User]:
+        result = await session.execute(select(User).offset(skip).limit(limit))
+        return list(result.scalars().all())
+
     async def create(self, session: AsyncSession, user: User) -> User:
         session.add(user)
         await session.commit()

@@ -3,10 +3,10 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.dependencies import db_session, get_password_hasher
-from app.core.security import PasswordHasher, decode_token
-from app.modules.users.repository import UserRepository
+from app.core.dependencies import db_session
+from app.core.security import decode_token
 from app.infra.db.models.user import User
+from app.modules.users.repository import UserRepository
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -16,9 +16,9 @@ def get_users_repo() -> UserRepository:
 
 
 async def get_current_user(
-        token: str = Depends(oauth2_scheme),
-        session: AsyncSession = Depends(db_session),
-        repo: UserRepository = Depends(get_users_repo),
+    token: str = Depends(oauth2_scheme),
+    session: AsyncSession = Depends(db_session),
+    repo: UserRepository = Depends(get_users_repo),
 ) -> User:
     try:
         payload = decode_token(token)
@@ -29,7 +29,6 @@ async def get_current_user(
     except Exception:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
-    # Додай в репо метод get_by_id — це правильніше, ніж по email
     user = await repo.get_by_id(session, user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
