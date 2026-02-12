@@ -18,6 +18,8 @@ dependencies = [
   "passlib[bcrypt]>=1.7.4",
   "pydantic[email]>=2.12.5",
   "bcrypt<5",
+  "python-jose[cryptography]>=3.5.0",
+  "python-multipart>=0.0.22",
 ]
 
 [project.optional-dependencies]
