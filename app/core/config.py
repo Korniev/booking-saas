@@ -1,17 +1,27 @@
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_env: str = "local"
-    log_level: str = "INFO"
+    app_env: str = Field(default="local", alias="APP_ENV")
+    log_level: str = Field(default="INFO", alias="LOG_LEVEL")
 
-    db_host: str = ""
-    db_port: int = 5432
-    db_name: str = ""
-    db_user: str = ""
-    db_password: str = ""
+    db_host: str = Field(alias="DB_HOST")
+    db_port: int = Field(default=5432, alias="DB_PORT")
+    db_name: str = Field(alias="DB_NAME")
+    db_user: str = Field(alias="DB_USER")
+    db_password: str = Field(alias="DB_PASSWORD")
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    jwt_secret: str = Field(alias="JWT_SECRET")
+    jwt_algorithm: str = Field(default="HS256", alias="JWT_ALGORITHM")
+    jwt_access_token_expire_minutes: int = Field(default=60, alias="JWT_ACCESS_TOKEN_EXPIRE_MINUTES")
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="ignore",
+        case_sensitive=False,
+        populate_by_name=True,
+    )
 
     @property
     def database_url_async(self) -> str:
@@ -22,6 +32,7 @@ class Settings(BaseSettings):
 
     @property
     def database_url_sync(self) -> str:
+        # psycopg v3
         return (
             f"postgresql+psycopg://{self.db_user}:{self.db_password}"
             f"@{self.db_host}:{self.db_port}/{self.db_name}"

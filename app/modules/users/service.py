@@ -22,3 +22,6 @@ class UserService:
             hashed_password=self.hasher.hash(data.password),
         )
         return await self.repo.create(session, user)
+
+    async def list_users(self, session: AsyncSession, *, skip: int = 0, limit: int = 100) -> list[User]:
+        return await self.repo.list_users(session, skip=skip, limit=limit)
