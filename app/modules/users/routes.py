@@ -17,11 +17,7 @@ async def register_user(
     session: AsyncSession = Depends(db_session),
     service: UserService = Depends(get_user_service),
 ):
-    try:
-        user = await service.register(session, payload)
-        return user
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    return await service.register(session, payload)
 
 
 @router.get("/me", response_model=UserRead)
