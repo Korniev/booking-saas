@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import PasswordHasher
 from app.infra.db.models.user import User
+from app.modules.users.exceptions import UserAlreadyExistsError
 from app.modules.users.repository import UserRepository
 from app.modules.users.schemas import UserCreate
 
@@ -14,7 +15,7 @@ class UserService:
     async def register(self, session: AsyncSession, data: UserCreate) -> User:
         existing = await self.repo.get_by_email(session, data.email)
         if existing:
-            raise ValueError("User with this email already exists")
+            raise UserAlreadyExistsError("User with this email already exists")
 
         user = User(
             email=data.email,
