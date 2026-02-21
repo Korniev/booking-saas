@@ -1,5 +1,8 @@
+import uuid
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import NotFoundError
 from app.core.security import PasswordHasher
 from app.infra.db.models.user import User
 from app.modules.users.exceptions import UserAlreadyExistsError
@@ -26,3 +29,15 @@ class UserService:
 
     async def list_users(self, session: AsyncSession, *, skip: int = 0, limit: int = 100) -> list[User]:
         return await self.repo.list_users(session, skip=skip, limit=limit)
+
+    async def set_role(self, session: AsyncSession, user_id: uuid.UUID, is_superuser: bool) -> User:
+        user = await self.repo.set_superuser(session, user_id, is_superuser)
+        if not user:
+            raise NotFoundError("User not found")
+        return user
+
+    async def set_active(self, session: AsyncSession, user_id: uuid.UUID, is_active: bool) -> User:
+        user = await self.repo.set_active(session, user_id, is_active)
+        if not user:
+            raise NotFoundError("User not found")
+        return user
